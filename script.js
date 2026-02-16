@@ -38,16 +38,16 @@ function initStockfish() {
 // Depth: How many moves ahead it can see (1=Blind, 20=All Seeing)
 
 var difficultyLevels = [
-  { name: "Sparrow", skill: 0, depth: 1, time: 10 }, // Blind & Dumb
-  { name: "Turtle", skill: 1, depth: 1, time: 50 }, // Still blind
-  { name: "Penguin", skill: 2, depth: 2, time: 50 }, // Sees 1 move ahead
-  { name: "Fox", skill: 3, depth: 3, time: 100 }, // Sees 2 moves ahead
-  { name: "Seal", skill: 4, depth: 4, time: 100 }, // Casual player
-  { name: "Eagle", skill: 5, depth: 5, time: 200 }, // Club player
-  { name: "Wolf", skill: 6, depth: 6, time: 300 }, // Strong Club
-  { name: "Bear", skill: 7, depth: 7, time: 300 }, // Expert
-  { name: "Tiger", skill: 8, depth: 15, time: 400 }, // Master
-  { name: "Dragon", skill: 9, depth: 20, time: 500 }, // Grandmaster
+  { name: "Sparrow", skill: 0, depth: 1, time: 10 },
+  { name: "Turtle", skill: 1, depth: 1, time: 50 },
+  { name: "Penguin", skill: 2, depth: 2, time: 50 },
+  { name: "Fox", skill: 3, depth: 3, time: 100 },
+  { name: "Seal", skill: 4, depth: 4, time: 100 },
+  { name: "Eagle", skill: 5, depth: 5, time: 200 },
+  { name: "Wolf", skill: 6, depth: 6, time: 300 },
+  { name: "Bear", skill: 7, depth: 8, time: 300 },
+  { name: "Tiger", skill: 8, depth: 12, time: 1000 },
+  { name: "Dragon", skill: 9, depth: 15, time: 1500 },
 ];
 
 function setupStockfishListeners() {
