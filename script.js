@@ -38,11 +38,11 @@ function initStockfish() {
 // Depth: How many moves ahead it can see (1=Blind, 20=All Seeing)
 
 var difficultyLevels = [
-  { name: "Monkey", skill: 0, depth: 1, time: 10 }, // Blind & Dumb
-  { name: "Sparrow", skill: 1, depth: 1, time: 50 }, // Still blind
+  { name: "Sparrow", skill: 0, depth: 1, time: 10 }, // Blind & Dumb
+  { name: "Turtle", skill: 1, depth: 1, time: 50 }, // Still blind
   { name: "Penguin", skill: 2, depth: 2, time: 50 }, // Sees 1 move ahead
-  { name: "Turtle", skill: 3, depth: 3, time: 100 }, // Sees 2 moves ahead
-  { name: "Fox", skill: 4, depth: 4, time: 100 }, // Casual player
+  { name: "Fox", skill: 3, depth: 3, time: 100 }, // Sees 2 moves ahead
+  { name: "Seal", skill: 4, depth: 4, time: 100 }, // Casual player
   { name: "Eagle", skill: 5, depth: 5, time: 200 }, // Club player
   { name: "Wolf", skill: 6, depth: 6, time: 300 }, // Strong Club
   { name: "Bear", skill: 7, depth: 7, time: 300 }, // Expert
