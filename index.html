@@ -1,0 +1,625 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="app_logo.png" />
+    <link rel="icon" type="image/png" href="app_logo.png" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* THEME: Paper & Ink */
+      body {
+        background-color: #fdf6e3; /* Solarized Light Beige */
+        color: #2f2f2f; /* Soft Ink Black */
+        font-family: "Georgia", "Times New Roman", Times, serif;
+        font-size: 15px;
+        display: flex;
+        flex-direction: column;
+        height: 98vh; /* Full screen height */
+        margin: 0;
+        padding: 35px 10px 10px 10px; /* Top padding for status bar */
+        box-sizing: border-box;
+      }
+
+      /* HEADER */
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #d3cbb5;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+        padding-left: 5px;
+      }
+
+      header span {
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 16px;
+      }
+
+      /* HELP BUTTON */
+      .btn-help {
+        background: transparent;
+        color: #586e75;
+        border: 1px solid #586e75;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        font-size: 14px;
+        line-height: 22px;
+        cursor: pointer;
+      }
+
+      /* CHEAT SHEET TABLE */
+      .cheat-table {
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+        font-size: 14px;
+        margin-bottom: 15px;
+      }
+      .cheat-table td {
+        padding: 5px;
+        border-bottom: 1px solid #d3cbb5;
+      }
+      .cheat-table tr:last-child td {
+        border-bottom: none;
+      }
+      .code {
+        font-family: monospace;
+        font-weight: bold;
+        color: #859900;
+      }
+
+      /* LOG AREA */
+      #game-log {
+        flex-grow: 1;
+        background-color: #eee8d5;
+        border: 1px solid #d3cbb5;
+        padding: 15px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        font-family: "Patrick Hand", cursive, sans-serif;
+        font-size: 20px;
+        line-height: 1.6;
+        margin-bottom: 10px;
+      }
+
+      /* ASCII BOARD (Refined Wood Style) */
+      #ascii-board {
+        display: none;
+
+        /* FONT & LAYOUT */
+        font-family: "Courier New", monospace; /* Reliable alignment */
+        white-space: pre; /* Keeps the grid shape */
+        font-size: 14px; /* Slightly smaller to prevent overflow */
+        font-weight: bold; /* Keeps pieces legible */
+        line-height: 1.2; /* Tight vertical spacing */
+
+        /* THEME: Subtle Wood/Parchment */
+        background-color: #f0e6d2; /* Lighter, less saturated wood/paper */
+        color: #4e342e; /* Dark Brown Ink */
+
+        /* BORDER & SPACING (Reduced) */
+        border: 4px solid #8d6e63; /* Thinner, refined frame */
+        border-radius: 2px;
+        padding: 10px; /* Reduced from 20px to save space */
+        margin-bottom: 15px;
+
+        /* DEPTH (Subtle) */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* Soft lift, no deep inset */
+
+        /* PREVENT OVERFLOW */
+        overflow-x: auto; /* Scroll if it ever gets too wide */
+        max-width: 100%; /* Ensure it stays within screen bounds */
+        box-sizing: border-box; /* Includes padding in width calculation */
+      }
+
+      /* GAME INFO HEADER (Scorecard Style) */
+      #game-info {
+        display: none;
+        margin-bottom: 15px;
+        padding: 10px 5px; /* Top/Bottom padding for "air" */
+        border-bottom: 2px solid #d3cbb5;
+
+        /* Layout: Stacked with space */
+        font-size: 15px;
+        line-height: 1.8; /* Spread lines apart */
+      }
+
+      /* Make the "White:" and "Black:" labels slightly bolder/lighter */
+      #game-info div {
+        display: flex;
+        justify-content: space-between; /* Push score to the far right? Optional */
+      }
+
+      /* CONTROLS */
+      #controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      input {
+        flex-grow: 1;
+        padding: 12px;
+        background: #eee8d5;
+        border: 1px solid #d3cbb5;
+        font-family: "Georgia", "Times New Roman", serif;
+        font-size: 12px;
+        font-weight: bold;
+        border-radius: 4px;
+
+        /* INSET SHADOW (Adds depth without brightness) */
+        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+        color: #2f2f2f; /* Ensure text is dark enough to read */
+      }
+
+      button {
+        padding: 12px 20px;
+        background-color: transparent; /* No more solid green */
+
+        /* INK STYLE */
+        border: 2px solid #2f2f2f; /* Dark Ink Border */
+        color: #2f2f2f; /* Dark Ink Text */
+
+        font-family: "Georgia", serif;
+        font-size: 16px;
+        font-weight: bold;
+        text-transform: uppercase;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.1s ease; /* Smooth hover effect */
+      }
+
+      /* HOVER / ACTIVE (Fill with Ink) */
+      button:hover,
+      button:active {
+        background-color: #2f2f2f;
+        color: #fdf6e3; /* Paper color text */
+      }
+
+      /* TOOLBAR */
+      #tools {
+        display: flex;
+        justify-content: space-between;
+        align-items: center; /* Ensures buttons line up vertically */
+      }
+
+      /* SECONDARY BUTTONS (Menu, Board - Blue Ink) */
+      .btn-secondary {
+        border-color: #586e75; /* Steel Blue Ink */
+        color: #586e75;
+      }
+
+      .btn-secondary:hover,
+      .btn-secondary:active {
+        background-color: #586e75;
+        color: #fdf6e3;
+      }
+
+      /* CANCEL / DANGER BUTTONS (Red Ink) */
+      .btn-cancel {
+        border-color: #dc322f; /* Red Ink */
+        color: #dc322f;
+      }
+
+      .btn-cancel:hover,
+      .btn-cancel:active {
+        background-color: #dc322f;
+        color: #fdf6e3;
+      }
+
+      /* MODALS */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .modal-content {
+        background-color: #fdf6e3;
+        padding: 20px;
+        border: 2px solid #859900;
+        border-radius: 8px;
+        width: 80%;
+        max-width: 300px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .modal-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #586e75;
+      }
+
+      /* SPECIFIC INPUT: Player Name in Modal */
+      #playerNameInput {
+        width: 100%;
+        margin-bottom: 15px; /* Adds space before the next dropdown */
+        box-sizing: border-box; /* Ensures padding doesn't stretch width */
+        text-align: left;
+        font-size: 16px;
+      }
+
+      .full-width-select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        background: #eee8d5;
+        border: 1px solid #d3cbb5;
+        font-family: inherit;
+        font-size: 16px;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      /* UTILITY: Full Width Button for Menus */
+      .btn-full-width {
+        width: 100%;
+        margin-bottom: 15px;
+        padding: 12px;
+        box-sizing: border-box; /* Ensures padding doesn't break the width */
+        display: block; /* Ensures it behaves like a block element */
+      }
+
+      .game-hidden {
+        display: none !important;
+      }
+
+      /* SPLASH SCREEN */
+      #splash-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #fdf6e3;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease-out;
+      }
+
+      .splash-logo {
+        width: 150px;
+        height: 150px;
+        border-radius: 20px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .loading-text {
+        font-family: "Courier New", monospace;
+        font-size: 16px;
+        color: #586e75;
+        animation: blink 1.5s infinite;
+      }
+
+      @keyframes blink {
+        0% {
+          opacity: 0.3;
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0.3;
+        }
+      }
+
+      /* SHAKE ANIMATION (For Invalid Moves) */
+      @keyframes shake {
+        0% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-5px);
+          border-color: #dc322f;
+        }
+        50% {
+          transform: translateX(5px);
+          border-color: #dc322f;
+        }
+        75% {
+          transform: translateX(-5px);
+          border-color: #dc322f;
+        }
+        100% {
+          transform: translateX(0);
+          border-color: #ccc;
+        }
+      }
+
+      .input-error {
+        animation: shake 0.3s;
+        border: 1px solid #dc322f !important; /* Solarized Red */
+        color: #dc322f !important;
+      }
+
+      /* DISABLED STATE (While Engine Thinks) */
+      .input-disabled {
+        background-color: #eee8d5; /* Slightly darker beige */
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+
+      /* --- DESKTOP LAYOUT (Split Screen) --- */
+      @media (min-width: 768px) {
+        body {
+          flex-direction: row; /* Switch from Stack to Side-by-Side */
+          padding: 40px;
+          max-width: 1200px;
+          margin: 0 auto; /* Center on huge screens */
+          gap: 30px;
+        }
+
+        /* LEFT COLUMN (Board & Controls) */
+        .desktop-left {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          max-width: 500px; /* Prevent board from stretching too wide */
+        }
+
+        /* RIGHT COLUMN (Log & Info) */
+        .desktop-right {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          height: 85vh; /* Fixed height for scrolling log */
+        }
+
+        /* ADJUSTMENTS */
+        header {
+          display: none; /* Hide mobile header on desktop (optional) */
+        }
+
+        #ascii-board {
+          font-size: 18px; /* Bigger board text */
+          padding: 20px;
+          margin-bottom: 20px;
+        }
+
+        #game-log {
+          flex-grow: 1; /* Fill the remaining height */
+          border-radius: 4px;
+          font-size: 18px; /* Easier to read history */
+        }
+
+        #controls {
+          margin-top: auto; /* Push input to bottom of left column */
+        }
+      }
+    </style>
+    <script src="chess.js"></script>
+    <script src="script.js"></script>
+  </head>
+  <body>
+    <div id="splash-screen">
+      <img
+        src="app_logo.png"
+        alt="TextChess"
+        class="splash-logo"
+        onerror="this.style.display = 'none'"
+      />
+      <div class="loading-text">Initializing Engine...</div>
+    </div>
+
+    <div class="desktop-left">
+      <header>
+        <span>TextChess</span>
+        <button class="btn-help" onclick="openHelpModal()">?</button>
+      </header>
+
+      <div id="ascii-board"></div>
+
+      <div id="controls">
+        <input
+          type="text"
+          id="moveInput"
+          placeholder="Enter move (e.g. e4)"
+          autocomplete="off"
+        />
+        <button onclick="handleUserMove()">Play move</button>
+      </div>
+
+      <div id="tools">
+        <button id="btnBoard" class="btn-secondary" onclick="toggleBoard()">
+          Show Board
+        </button>
+        <button class="btn-secondary" onclick="openNewGameModal()">Menu</button>
+      </div>
+    </div>
+
+    <div class="desktop-right">
+      <div id="game-info">
+        <div style="display: flex; justify-content: space-between">
+          <span
+            >White:
+            <span id="whiteNameDisplay" style="font-weight: bold"
+              >Player</span
+            ></span
+          >
+          <span
+            id="whiteScore"
+            style="color: #4a7840; font-weight: bold"
+          ></span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between">
+          <span
+            >Black:
+            <span id="blackNameDisplay" style="font-weight: bold"
+              >Stockfish</span
+            ></span
+          >
+          <span
+            id="blackScore"
+            style="color: #4a7840; font-weight: bold"
+          ></span>
+        </div>
+      </div>
+
+      <div id="game-log">Select "Menu" to start a new game.</div>
+    </div>
+
+    <div id="newGameModal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-title">Game Menu</div>
+
+        <button class="btn-secondary btn-full-width" onclick="exportPGN()">
+          Save Current Game (PGN)
+        </button>
+
+        <hr
+          style="border: 0; border-top: 1px solid #d3cbb5; margin-bottom: 15px"
+        />
+
+        <label
+          style="
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: bold;
+          "
+          >New Game Settings:</label
+        >
+
+        <input
+          type="text"
+          id="playerNameInput"
+          placeholder="Your Name (Default: Player)"
+        />
+
+        <select
+          id="sideSelect"
+          class="full-width-select"
+          style="margin-bottom: 10px"
+        >
+          <option value="random">Random</option>
+          <option value="white">White</option>
+          <option value="black">Black</option>
+        </select>
+
+        <label style="display: block; text-align: left; margin-bottom: 5px"
+          >Select Opponent:</label
+        >
+        <select
+          id="difficultySelect"
+          onchange="updateDifficulty()"
+          class="full-width-select"
+        >
+          <option value="0">1. Monkey</option>
+          <option value="1">2. Sparrow</option>
+          <option value="2">3. Penguin</option>
+          <option value="3">4. Turtle</option>
+          <option value="4">5. Fox</option>
+          <option value="5">6. Eagle</option>
+          <option value="6">7. Wolf</option>
+          <option value="7">8. Bear</option>
+          <option value="8">9. Tiger</option>
+          <option value="9">10. Dragon</option>
+        </select>
+
+        <!-- <button
+          class="btn-secondary btn-full-width"
+          onclick="startSelfPlay()"
+          style="margin-bottom: 20px"
+        >
+          Spectate (Engine vs Engine)
+        </button> -->
+
+        <div class="modal-actions">
+          <button class="btn-secondary btn-cancel" onclick="closeModal()">
+            Back
+          </button>
+          <button onclick="confirmNewGame()">Start Game</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="helpModal" class="modal-overlay">
+      <div class="modal-content" style="max-width: 350px; text-align: left">
+        <div class="modal-title" style="text-align: center">
+          Notation Cheat Sheet
+        </div>
+
+        <table class="cheat-table">
+          <tr>
+            <td><span class="code">e4</span></td>
+            <td>Pawn move (to e4)</td>
+          </tr>
+          <tr>
+            <td><span class="code">Nf3</span></td>
+            <td>Piece move (Knight to f3)</td>
+          </tr>
+          <tr>
+            <td><span class="code">exd5</span></td>
+            <td>Pawn capture</td>
+          </tr>
+          <tr>
+            <td><span class="code">Bxf7</span></td>
+            <td>Piece capture</td>
+          </tr>
+          <tr>
+            <td><span class="code">O-O</span></td>
+            <td>Castling (Short)</td>
+          </tr>
+          <tr>
+            <td><span class="code">O-O-O</span></td>
+            <td>Castling (Long)</td>
+          </tr>
+          <tr>
+            <td><span class="code">e8=Q</span></td>
+            <td>Promotion (to Queen)</td>
+          </tr>
+          <tr>
+            <td><span class="code">+</span> / <span class="code">#</span></td>
+            <td>Check / Checkmate</td>
+          </tr>
+        </table>
+
+        <div style="text-align: center">
+          <p style="font-size: 12px; color: #586e75; margin-bottom: 15px">
+            <strong>Pieces:</strong> K (King), Q (Queen), R (Rook), B (Bishop),
+            N (Knight).
+          </p>
+          <button onclick="closeHelpModal()">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="chess.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
